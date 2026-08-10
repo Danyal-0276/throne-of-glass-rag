@@ -13,14 +13,10 @@ export default async function ArchivePage({ searchParams }: Props) {
   const sp = await searchParams;
   return (
     <div className="archive-page">
-      <div className="archive-page__bg" aria-hidden />
-      <div className="archive-page__veil" aria-hidden />
-      <div className="archive-page__frame">
-        <ArchiveChatClient
-          initialQuery={sp.q}
-          characterSlug={sp.character}
-        />
-      </div>
+      <ArchiveChatClient
+        initialQuery={sp.q}
+        characterSlug={sp.character}
+      />
     </div>
   );
 }

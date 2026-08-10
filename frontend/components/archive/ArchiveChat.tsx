@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import {
   useCallback,
   useEffect,
@@ -9,6 +8,7 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
+import Link from "next/link";
 import { askStream, type SourceChunk } from "@/lib/api";
 import { useSpoiler } from "@/lib/spoiler";
 import { getCharacter } from "@/content/characters";
@@ -17,10 +17,6 @@ import {
   useArchiveThreads,
   type ChatMessage,
 } from "./useArchiveThreads";
-
-const EmberField = dynamic(() => import("@/components/EmberField"), {
-  ssr: false,
-});
 
 const STARTERS = [
   "Who is Aelin Galathynius?",
@@ -31,10 +27,10 @@ const STARTERS = [
 ];
 
 const FOLLOWUPS = [
-  "Tell me more about that",
-  "Which book does this happen in?",
+  "Tell me more",
+  "Which book?",
   "Who else is involved?",
-  "Summarize without major spoilers",
+  "Keep spoilers light",
 ];
 
 type Props = {
@@ -74,7 +70,7 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 180)}px`;
+    el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
   }, [input]);
 
   const stop = useCallback(() => {
@@ -128,6 +124,7 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
       setInput("");
       setError(null);
       setStreaming(true);
+      setSidebarOpen(false);
 
       const history = prior
         .filter((m) => m.content)
@@ -263,198 +260,218 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
 
   return (
     <div className="archive-shell">
+      {sidebarOpen && (
+        <button
+          type="button"
+          className="archive-scrim"
+          aria-label="Close sidebar"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <aside className={`archive-sidebar ${sidebarOpen ? "is-open" : ""}`}>
-        <button type="button" className="btn" onClick={() => newThread()}>
-          New inquiry
+        <Link href="/" className="archive-home">
+          ← Throne of Glass
+        </Link>
+        <button type="button" className="archive-new" onClick={() => newThread()}>
+          <span aria-hidden>+</span> New chat
         </button>
-        <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+        <div className="archive-thread-list">
           {threads.map((t) => (
-            <div key={t.id} style={{ display: "flex", gap: "0.25rem", alignItems: "center" }}>
+            <div
+              key={t.id}
+              className={`thread-row ${t.id === activeId ? "is-active" : ""}`}
+            >
               <button
                 type="button"
-                className={`thread-item ${t.id === activeId ? "is-active" : ""}`}
+                className="thread-item"
                 onClick={() => {
                   setActiveId(t.id);
                   setSidebarOpen(false);
                 }}
-                style={{ flex: 1 }}
               >
                 {t.title}
               </button>
-              <button
-                type="button"
-                className="btn btn--ghost"
-                style={{ padding: "0.35rem 0.45rem", fontSize: "0.7rem" }}
-                title="Rename"
-                onClick={() => {
-                  const next = window.prompt("Rename thread", t.title);
-                  if (next != null) renameThread(t.id, next);
-                }}
-              >
-                ✎
-              </button>
-              <button
-                type="button"
-                className="btn btn--ghost"
-                style={{ padding: "0.35rem 0.45rem", fontSize: "0.7rem" }}
-                title="Delete"
-                onClick={() => {
-                  if (window.confirm("Delete this thread?")) deleteThread(t.id);
-                }}
-              >
-                ×
-              </button>
+              <div className="thread-row__ops">
+                <button
+                  type="button"
+                  title="Rename"
+                  onClick={() => {
+                    const next = window.prompt("Rename chat", t.title);
+                    if (next != null) renameThread(t.id, next);
+                  }}
+                >
+                  ✎
+                </button>
+                <button
+                  type="button"
+                  title="Delete"
+                  onClick={() => {
+                    if (window.confirm("Delete this chat?")) deleteThread(t.id);
+                  }}
+                >
+                  ×
+                </button>
+              </div>
             </div>
           ))}
         </div>
-        <p style={{ fontSize: "0.7rem", color: "rgba(232,220,200,0.45)", margin: 0 }}>
-          Spoiler gate: book {maxBook}. Change in the nav.
-        </p>
+        <p className="archive-sidebar__hint">Spoiler gate: book {maxBook}</p>
       </aside>
 
       <section className="archive-main">
-        <EmberField count={55} />
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "0.65rem 1rem",
-            borderBottom: "1px solid var(--border-soft)",
-            zIndex: 2,
-            position: "relative",
-          }}
-        >
+        <header className="archive-topbar">
           <button
             type="button"
-            className="btn btn--ghost"
-            style={{ display: "none" }}
+            className="archive-icon-btn archive-topbar__menu"
             onClick={() => setSidebarOpen((v) => !v)}
-            id="archive-sidebar-toggle"
+            aria-label="Chats"
           >
-            Threads
+            ☰
           </button>
-          <style>{`
-            @media (max-width: 900px) {
-              #archive-sidebar-toggle { display: inline-flex !important; }
-            }
-          `}</style>
-          <h1
-            className="font-display"
-            style={{ margin: 0, fontSize: "1.15rem", color: "var(--ember-bright)" }}
+          <div className="archive-topbar__title">
+            <span className="archive-topbar__name">Archive</span>
+            <span className="archive-topbar__meta">Through book {maxBook}</span>
+          </div>
+          <button
+            type="button"
+            className="archive-icon-btn"
+            onClick={() => newThread()}
+            aria-label="New chat"
           >
-            The Archive
-          </h1>
-          <span style={{ fontSize: "0.75rem", color: "var(--gold)" }}>
-            Through book {maxBook}
-          </span>
-        </div>
+            +
+          </button>
+        </header>
 
         <div className="messages">
-          {showStarters && (
+          {showStarters ? (
             <div className="empty-archive">
-              <h2 className="font-display">Ask the tomes</h2>
+              <p className="empty-archive__kicker">Throne of Glass</p>
+              <h2>How can I help you today?</h2>
               <p>
-                Inquire about characters, places, and events. Answers are drawn
-                from the indexed archive and limited by your spoiler setting.
+                Ask about characters, places, and events. Answers stay within
+                your spoiler setting.
               </p>
-            </div>
-          )}
-
-          {active.messages.map((m, idx) => (
-            <div
-              key={m.id}
-              className={`msg ${m.role === "user" ? "msg--user" : "msg--assistant"}`}
-            >
-              <div style={{ whiteSpace: "pre-wrap", position: "relative", zIndex: 1 }}>
-                {m.content || (streaming && m.role === "assistant" ? "…" : "")}
+              <div className="starters">
+                {STARTERS.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    className="starter-chip"
+                    onClick={() => void send(s)}
+                  >
+                    {s}
+                  </button>
+                ))}
               </div>
-              {m.role === "assistant" && m.sources && m.sources.length > 0 && (
-                <SourceCards sources={m.sources} />
-              )}
-              {m.role === "assistant" && m.content && (
-                <div className="msg__actions">
-                  <button type="button" onClick={() => void copyText(m.content)}>
-                    Copy
-                  </button>
-                  <button type="button" onClick={() => regenerate(idx)} disabled={streaming}>
-                    Regenerate
-                  </button>
-                </div>
-              )}
-              {m.role === "assistant" &&
-                m.content &&
-                !streaming &&
-                idx === active.messages.length - 1 && (
-                  <div className="msg__actions" style={{ marginTop: "0.4rem" }}>
-                    {FOLLOWUPS.map((f) => (
-                      <button
-                        key={f}
-                        type="button"
-                        className="followup-chip"
-                        onClick={() => void send(f)}
-                      >
-                        {f}
-                      </button>
-                    ))}
-                  </div>
-                )}
             </div>
-          ))}
+          ) : (
+            active.messages.map((m, idx) => (
+              <div
+                key={m.id}
+                className={`msg-row ${m.role === "user" ? "msg-row--user" : "msg-row--assistant"}`}
+              >
+                <div className="msg-row__inner">
+                  <div className="msg-avatar" aria-hidden>
+                    {m.role === "user" ? "You" : "A"}
+                  </div>
+                  <div className="msg-body">
+                    <div className="msg-label">
+                      {m.role === "user" ? "You" : "Archive"}
+                    </div>
+                    <div className="msg-text">
+                      {m.content ||
+                        (streaming && m.role === "assistant" ? (
+                          <span className="msg-typing">Thinking…</span>
+                        ) : (
+                          ""
+                        ))}
+                      {streaming &&
+                        m.role === "assistant" &&
+                        m.content &&
+                        idx === active.messages.length - 1 && (
+                          <span className="msg-caret" aria-hidden />
+                        )}
+                    </div>
+                    {m.role === "assistant" &&
+                      m.sources &&
+                      m.sources.length > 0 && (
+                        <SourceCards sources={m.sources} />
+                      )}
+                    {m.role === "assistant" && m.content && (
+                      <div className="msg__actions">
+                        <button
+                          type="button"
+                          onClick={() => void copyText(m.content)}
+                        >
+                          Copy
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => regenerate(idx)}
+                          disabled={streaming}
+                        >
+                          Regenerate
+                        </button>
+                      </div>
+                    )}
+                    {m.role === "assistant" &&
+                      m.content &&
+                      !streaming &&
+                      idx === active.messages.length - 1 && (
+                        <div className="followups">
+                          {FOLLOWUPS.map((f) => (
+                            <button
+                              key={f}
+                              type="button"
+                              className="followup-chip"
+                              onClick={() => void send(f)}
+                            >
+                              {f}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
           <div ref={bottomRef} />
         </div>
 
-        {error && (
-          <p
-            style={{
-              color: "#e8a05c",
-              fontSize: "0.85rem",
-              textAlign: "center",
-              margin: "0 1rem 0.5rem",
-              zIndex: 2,
-              position: "relative",
-            }}
-          >
-            {error}
-          </p>
-        )}
+        {error && <p className="archive-error">{error}</p>}
 
         <div className="composer">
-          {showStarters && (
-            <div className="starters">
-              {STARTERS.map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  className="starter-chip"
-                  onClick={() => void send(s)}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          )}
-          <form className="composer__row" onSubmit={onSubmit}>
+          <form className="composer__shell" onSubmit={onSubmit}>
             <textarea
               ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Ask the archive…"
+              placeholder="Message the archive…"
               rows={1}
               disabled={streaming && !input}
               aria-label="Message the archive"
             />
             {streaming ? (
-              <button type="button" className="btn" onClick={stop}>
+              <button type="button" className="composer__send" onClick={stop}>
                 Stop
               </button>
             ) : (
-              <button type="submit" className="btn" disabled={!input.trim()}>
-                Send
+              <button
+                type="submit"
+                className="composer__send"
+                disabled={!input.trim()}
+                aria-label="Send"
+              >
+                ↑
               </button>
             )}
           </form>
+          <p className="composer__footnote">
+            Unofficial fan archive. Answers are drawn from indexed passages.
+          </p>
         </div>
       </section>
     </div>

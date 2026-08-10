@@ -53,12 +53,13 @@ export default function LandingStory() {
       if (reduced) return;
 
       const hero = root.querySelector(".story-hero");
+      const sticky = root.querySelector(".story-hero__sticky");
       const bg = root.querySelector(".story-hero__bg");
       const mark = root.querySelector(".story-hero__g");
       const copy = root.querySelector(".story-hero__copy");
       const hint = root.querySelector(".story-hero__scroll-hint");
 
-      if (hero && mark && copy && bg) {
+      if (hero && sticky && mark && copy && bg) {
         gsap.set(mark, { transformOrigin: "50% 50%" });
 
         gsap
@@ -70,44 +71,69 @@ export default function LandingStory() {
               scrub: 0.65,
             },
           })
-          .to(bg, { scale: 1.1, ease: "none" }, 0)
-          .to(mark, { scale: 1.35, rotate: 16, opacity: 0.35, ease: "none" }, 0)
-          .to(copy, { y: -70, opacity: 0, ease: "none" }, 0)
+          .to(bg, { scale: 1.08, ease: "none" }, 0)
+          .to(mark, { scale: 1.28, rotate: 14, opacity: 0.32, ease: "none" }, 0)
+          .to(copy, { y: -48, opacity: 0, ease: "none" }, 0)
           .to(hint, { opacity: 0, ease: "none" }, 0);
       }
 
-      root.querySelectorAll<HTMLElement>(".story-calm").forEach((el) => {
-        gsap.from(el.children, {
-          y: 28,
-          opacity: 0,
-          duration: 0.7,
-          stagger: 0.07,
-          ease: "power2.out",
+      // Section-upon-section passage stack (intro + peeks)
+      const passage = root.querySelector<HTMLElement>(".story-passage");
+      const panels = gsap.utils.toArray<HTMLElement>(
+        ".story-passage__panel",
+        root,
+      );
+
+      if (passage && panels.length > 1) {
+        panels.forEach((panel, i) => {
+          gsap.set(panel, {
+            zIndex: i + 1,
+            yPercent: i === 0 ? 0 : 100,
+          });
+        });
+
+        const tl = gsap.timeline({
           scrollTrigger: {
-            trigger: el,
-            start: "top 82%",
-            toggleActions: "play none none reverse",
+            trigger: passage,
+            start: "top top",
+            end: () => `+=${panels.length * window.innerHeight * 0.92}`,
+            scrub: 0.7,
+            pin: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
           },
         });
-      });
 
-      root.querySelectorAll<HTMLElement>(".story-stack__card").forEach((card) => {
-        const inner = card.querySelector(".story-stack__inner");
-        if (inner) {
-          gsap.from(inner, {
-            y: 36,
-            opacity: 0,
-            duration: 0.75,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: card,
-              start: "top 75%",
-              toggleActions: "play none none reverse",
+        panels.forEach((panel, i) => {
+          if (i === 0) return;
+          tl.to(
+            panel,
+            {
+              yPercent: 0,
+              ease: "none",
+              duration: 1,
             },
-          });
-        }
-      });
+            i - 1,
+          );
+        });
 
+        // Soft scale on the panel being covered
+        panels.forEach((panel, i) => {
+          if (i >= panels.length - 1) return;
+          tl.to(
+            panel,
+            {
+              scale: 0.94,
+              opacity: 0.72,
+              ease: "none",
+              duration: 1,
+            },
+            i,
+          );
+        });
+      }
+
+      // Fan of doors — leave behavior intact
       const fanSection = root.querySelector<HTMLElement>(".story-fan");
       const fanStage = root.querySelector<HTMLElement>(".story-fan__stage");
       const fanCards = gsap.utils.toArray<HTMLElement>(".story-fan__card", root);
@@ -248,69 +274,100 @@ export default function LandingStory() {
           },
         });
       });
+
+      root.querySelectorAll<HTMLElement>(".story-calm--end").forEach((el) => {
+        gsap.from(el.children, {
+          y: 24,
+          opacity: 0,
+          duration: 0.65,
+          stagger: 0.06,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 82%",
+            toggleActions: "play none none reverse",
+          },
+        });
+      });
     }, root);
 
-    return () => ctx.revert();
+    const onResize = () => ScrollTrigger.refresh();
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      ctx.revert();
+    };
   }, []);
 
   return (
     <div className="story" ref={rootRef}>
       <section className="story-hero" data-mood="ember">
-        <div className="story-hero__bg" />
-        <div className="story-hero__veil" />
-        <div className="story-hero__g">
-          <SiteMark size={200} />
+        <div className="story-hero__sticky">
+          <div className="story-hero__bg" />
+          <div className="story-hero__veil" />
+          <div className="story-hero__g">
+            <SiteMark size={200} />
+          </div>
+          <div className="story-hero__copy">
+            <p className="eyebrow">Unofficial fan archive</p>
+            <h1>
+              Throne of
+              <br />
+              <span>Glass</span>
+            </h1>
+            <p className="lede">
+              Scroll to enter Erilea: fire, ice, and the quiet archive that
+              remembers both.
+            </p>
+          </div>
+          <div className="story-hero__scroll-hint">Scroll</div>
         </div>
-        <div className="story-hero__copy">
-          <p className="eyebrow">Unofficial fan archive</p>
-          <h1>
-            Throne of
-            <br />
-            <span>Glass</span>
-          </h1>
-          <p className="lede">
-            Scroll to enter Erilea: fire, ice, and the quiet archive that
-            remembers both.
-          </p>
-        </div>
-        <div className="story-hero__scroll-hint">Scroll</div>
       </section>
 
-      <section className="story-calm">
-        <p className="eyebrow">The telling</p>
-        <h2>Not a menu. A passage.</h2>
-        <p>
-          One continuous scroll through pinned scenes and stacked peeks, then a
-          fan of doors into the archives.
-        </p>
-      </section>
-
-      <section className="story-stack">
-        {PEEKS.map((card) => (
-          <article
-            key={card.title}
-            className="story-stack__card"
-            data-mood={card.mood}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={card.img} alt="" />
-            <div className="story-stack__inner">
-              <p className="eyebrow">Sneak peek</p>
-              <h2>{card.title}</h2>
-              <p>{card.body}</p>
-              <Link href={card.href} className="text-link">
-                Enter
-              </Link>
+      <section className="story-passage" aria-label="The passage">
+        <div className="story-passage__stage">
+          <article className="story-passage__panel story-passage__panel--intro">
+            <div className="story-passage__intro">
+              <p className="eyebrow">The telling</p>
+              <h2>Not a menu. A passage.</h2>
+              <p>
+                Scroll and each scene rises over the last: peeks stacked like
+                pages, then a fan of doors into the archives.
+              </p>
             </div>
           </article>
-        ))}
+
+          {PEEKS.map((card) => (
+            <article
+              key={card.title}
+              className="story-passage__panel"
+              data-mood={card.mood}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="story-passage__img" src={card.img} alt="" />
+              <div className="story-passage__veil" aria-hidden />
+              <div className="story-passage__copy">
+                <p className="eyebrow">Sneak peek</p>
+                <h2>{card.title}</h2>
+                <p>{card.body}</p>
+                <Link href={card.href} className="text-link">
+                  Enter
+                </Link>
+              </div>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="story-fan">
         <div className="story-fan__copy">
           <p className="eyebrow">Across the map</p>
           <h2>Choose a door</h2>
-          <p>Hover a card to draw it forward. Each one opens a wing of the archive.</p>
+          <p>
+            Hover a card to draw it forward. Each one opens a wing of the
+            archive.
+          </p>
         </div>
         <div className="story-fan__stage" aria-label="Archive peeks">
           {FAN.map((item) => (
