@@ -32,7 +32,7 @@ export default async function LocationPage({ params }: Props) {
           <h1>{loc.name}</h1>
           <p>{loc.blurb}</p>
           <Link
-            href={`/?ask=1&q=${encodeURIComponent(loc.askPrompt)}`}
+            href={`/archive?q=${encodeURIComponent(loc.askPrompt)}`}
             className="btn"
             style={{ marginTop: "1.25rem" }}
           >

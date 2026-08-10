@@ -39,7 +39,7 @@ export default function AboutPage() {
           Prefer the books. Support the author by purchasing official editions.
         </p>
       </div>
-      <Link href="/?ask=1" className="btn" style={{ marginTop: "2rem" }}>
+      <Link href="/archive" className="btn" style={{ marginTop: "2rem" }}>
         Ask the Archive
       </Link>
     </section>

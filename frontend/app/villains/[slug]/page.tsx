@@ -33,7 +33,7 @@ export default async function VillainDetailPage({ params }: Props) {
           <p className="detail__aliases">{v.titles.join(" · ")}</p>
           <p>{v.blurb}</p>
           <Link
-            href={`/?ask=1&q=${encodeURIComponent(v.askPrompt)}`}
+            href={`/archive?q=${encodeURIComponent(v.askPrompt)}`}
             className="btn"
             style={{ marginTop: "1.25rem" }}
           >

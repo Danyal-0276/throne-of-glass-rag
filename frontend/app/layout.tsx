@@ -1,19 +1,27 @@
 import type { Metadata } from "next";
-import { Fraunces, Source_Sans_3 } from "next/font/google";
+import { Cinzel, Cormorant_Garamond, Manrope } from "next/font/google";
 import { Suspense } from "react";
 import FloatingNav from "@/components/FloatingNav";
 import ChatOrb from "@/components/ChatOrb";
 import { SpoilerProvider } from "@/lib/spoiler";
 import "./globals.css";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
-const sourceSans = Source_Sans_3({
-  variable: "--font-source-sans",
+const cinzel = Cinzel({
+  variable: "--font-ui",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const manrope = Manrope({
+  variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
 });
@@ -38,7 +46,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${sourceSans.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${cinzel.variable} ${manrope.variable} h-full antialiased`}
     >
       <body className="min-h-full">
         <SpoilerProvider>

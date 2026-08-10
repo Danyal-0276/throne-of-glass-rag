@@ -83,8 +83,8 @@
   --color-tome: var(--tome);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-serif: var(--font-fraunces);
-  --font-sans: var(--font-source-sans);
+  --font-serif: var(--font-display);
+  --font-sans: var(--font-sans);
 }
 
 * {
@@ -100,7 +100,7 @@ body {
   min-height: 100%;
   background: var(--ink);
   color: var(--parchment);
-  font-family: var(--font-source-sans), "Source Sans 3", system-ui, sans-serif;
+  font-family: var(--font-sans), Manrope, system-ui, sans-serif;
   text-rendering: optimizeLegibility;
 }
 
@@ -109,9 +109,18 @@ h2,
 h3,
 h4,
 .font-display {
-  font-family: var(--font-fraunces), Fraunces, Georgia, serif;
+  font-family: var(--font-display), "Cormorant Garamond", Georgia, serif;
   font-weight: 500;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+}
+
+.eyebrow,
+.section__eyebrow,
+.float-nav__link,
+.entity-card__meta,
+.chat-orb__eyebrow,
+.btn {
+  font-family: var(--font-ui), Cinzel, Georgia, serif;
 }
 
 a {
@@ -159,7 +168,7 @@ a {
 }
 
 .nav__brand {
-  font-family: var(--font-fraunces), Fraunces, Georgia, serif;
+  font-family: var(--font-display), "Cormorant Garamond", Georgia, serif;
   font-size: 1.15rem;
   color: var(--ember-bright);
   white-space: nowrap;
@@ -431,7 +440,7 @@ a {
 }
 
 .hero__brand {
-  font-family: var(--font-fraunces), Fraunces, Georgia, serif;
+  font-family: var(--font-display), "Cormorant Garamond", Georgia, serif;
   font-size: clamp(2.8rem, 8vw, 5.5rem);
   line-height: 0.95;
   margin: 0 0 0.85rem;
@@ -841,11 +850,13 @@ a {
 .float-nav {
   position: fixed;
   top: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
   z-index: 60;
-  width: min(960px, calc(100% - 1.5rem));
+  display: flex;
+  justify-content: center;
   pointer-events: none;
+  padding: 0 0.75rem;
 }
 
 .float-nav__capsule {
@@ -854,6 +865,8 @@ a {
   align-items: center;
   gap: 0.65rem;
   padding: 0.45rem 0.65rem;
+  width: fit-content;
+  max-width: min(1100px, calc(100vw - 1.5rem));
   border-radius: 999px;
   background: rgba(18, 12, 10, 0.55);
   border: 1px solid rgba(196, 165, 116, 0.28);
@@ -875,8 +888,8 @@ a {
 }
 
 .float-nav__link {
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   padding: 0.45rem 0.7rem;
   border-radius: 999px;
@@ -1228,7 +1241,7 @@ a {
   position: absolute;
   left: 1rem;
   bottom: 1rem;
-  font-family: var(--font-fraunces), serif;
+  font-family: var(--font-display), "Cormorant Garamond", serif;
   font-size: 1.5rem;
 }
 

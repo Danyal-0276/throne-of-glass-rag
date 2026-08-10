@@ -34,7 +34,7 @@ export default async function CharacterPage({ params }: Props) {
           <p className="detail__aliases">{c.aliases.join(" · ")}</p>
           <p>{c.blurb}</p>
           <Link
-            href={`/?ask=1&q=${encodeURIComponent(c.askPrompt)}&character=${c.slug}`}
+            href={`/archive?q=${encodeURIComponent(c.askPrompt)}&character=${c.slug}`}
             className="btn"
             style={{ marginTop: "1.25rem" }}
           >

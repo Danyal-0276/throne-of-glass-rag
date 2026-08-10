@@ -152,7 +152,7 @@ export default function LandingStory() {
               },
               {
                 label: "Ask",
-                href: "/?ask=1",
+                href: "/archive",
                 img: "/images/characters/rowan.png",
               },
             ].map((item) => (
