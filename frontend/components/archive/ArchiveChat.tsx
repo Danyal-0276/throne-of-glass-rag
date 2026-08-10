@@ -57,14 +57,19 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
   const [streaming, setStreaming] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [streamId, setStreamId] = useState<string | null>(null);
+  const [revealText, setRevealText] = useState("");
   const abortRef = useRef<AbortController | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const primedRef = useRef(false);
+  const targetRef = useRef("");
+  const revealLenRef = useRef(0);
+  const rafRef = useRef(0);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [active?.messages, streaming]);
+  }, [active?.messages, streaming, revealText]);
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -73,10 +78,37 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
     el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
   }, [input]);
 
+  // Smooth ChatGPT-like reveal: ease visible text toward the streamed target
+  useEffect(() => {
+    if (!streaming) {
+      cancelAnimationFrame(rafRef.current);
+      return;
+    }
+
+    const tick = () => {
+      const target = targetRef.current;
+      let len = revealLenRef.current;
+      if (len < target.length) {
+        const behind = target.length - len;
+        const step =
+          behind > 120 ? Math.ceil(behind / 6) : behind > 40 ? 4 : behind > 12 ? 2 : 1;
+        len = Math.min(target.length, len + step);
+        revealLenRef.current = len;
+        setRevealText(target.slice(0, len));
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [streaming]);
+
   const stop = useCallback(() => {
     abortRef.current?.abort();
     abortRef.current = null;
     setStreaming(false);
+    setStreamId(null);
+    setRevealText(targetRef.current);
   }, []);
 
   const send = useCallback(
@@ -115,6 +147,11 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
         thread.messages.length === 0 || thread.title === "New inquiry"
           ? question.slice(0, 48)
           : thread.title;
+
+      targetRef.current = "";
+      revealLenRef.current = 0;
+      setRevealText("");
+      setStreamId(assistantId);
 
       updateThread(threadId, (t) => ({
         ...t,
@@ -155,6 +192,7 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
             },
             onToken: (token) => {
               full += token;
+              targetRef.current = full;
               const snapshot = full;
               updateThread(threadId, (t) => ({
                 ...t,
@@ -166,8 +204,24 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
               }));
             },
             onDone: () => {
-              setStreaming(false);
-              abortRef.current = null;
+              // Let reveal catch up, then settle
+              const finish = () => {
+                if (revealLenRef.current < targetRef.current.length) {
+                  const behind = targetRef.current.length - revealLenRef.current;
+                  revealLenRef.current = Math.min(
+                    targetRef.current.length,
+                    revealLenRef.current + Math.max(6, Math.ceil(behind / 4)),
+                  );
+                  setRevealText(targetRef.current.slice(0, revealLenRef.current));
+                  requestAnimationFrame(finish);
+                  return;
+                }
+                setRevealText(targetRef.current);
+                setStreaming(false);
+                setStreamId(null);
+                abortRef.current = null;
+              };
+              finish();
             },
             onError: (err) => {
               setError(err);
@@ -185,6 +239,7 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
                 ),
               }));
               setStreaming(false);
+              setStreamId(null);
               abortRef.current = null;
             },
           },
@@ -195,6 +250,7 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
           setError((e as Error).message || "Stream interrupted");
         }
         setStreaming(false);
+        setStreamId(null);
         abortRef.current = null;
       }
     },
@@ -259,7 +315,7 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
   const showStarters = active.messages.length === 0 && !streaming;
 
   return (
-    <div className="archive-shell">
+    <div className="archive-shell" data-mood="ember">
       {sidebarOpen && (
         <button
           type="button"
@@ -320,6 +376,7 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
       </aside>
 
       <section className="archive-main">
+        <div className="archive-main__glow" aria-hidden />
         <header className="archive-topbar">
           <button
             type="button"
@@ -366,60 +423,78 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
               </div>
             </div>
           ) : (
-            active.messages.map((m, idx) => (
-              <div
-                key={m.id}
-                className={`msg-row ${m.role === "user" ? "msg-row--user" : "msg-row--assistant"}`}
-              >
-                <div className="msg-row__inner">
-                  <div className="msg-avatar" aria-hidden>
-                    {m.role === "user" ? "You" : "A"}
-                  </div>
-                  <div className="msg-body">
-                    <div className="msg-label">
-                      {m.role === "user" ? "You" : "Archive"}
+            active.messages.map((m, idx) => {
+              const isLive = streaming && m.id === streamId;
+              const text = isLive
+                ? revealText
+                : m.content;
+              const showCaret = isLive;
+              const settled =
+                m.role === "assistant" &&
+                m.content &&
+                !(streaming && m.id === streamId);
+              const isRecent = idx >= active.messages.length - 2;
+
+              return (
+                <div
+                  key={m.id}
+                  className={`msg-row ${isRecent ? "msg-row--enter" : ""} ${
+                    m.role === "user" ? "msg-row--user" : "msg-row--assistant"
+                  } ${isLive ? "is-streaming" : ""}`}
+                >
+                  <div className="msg-row__inner">
+                    <div className="msg-avatar" aria-hidden>
+                      {m.role === "user" ? "You" : "A"}
                     </div>
-                    <div className="msg-text">
-                      {m.content ||
-                        (streaming && m.role === "assistant" ? (
-                          <span className="msg-typing">Thinking…</span>
-                        ) : (
-                          ""
-                        ))}
-                      {streaming &&
-                        m.role === "assistant" &&
-                        m.content &&
-                        idx === active.messages.length - 1 && (
-                          <span className="msg-caret" aria-hidden />
-                        )}
-                    </div>
-                    {m.role === "assistant" &&
-                      m.sources &&
-                      m.sources.length > 0 && (
-                        <SourceCards sources={m.sources} />
-                      )}
-                    {m.role === "assistant" && m.content && (
-                      <div className="msg__actions">
-                        <button
-                          type="button"
-                          onClick={() => void copyText(m.content)}
-                        >
-                          Copy
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => regenerate(idx)}
-                          disabled={streaming}
-                        >
-                          Regenerate
-                        </button>
+                    <div className="msg-body">
+                      <div className="msg-label">
+                        {m.role === "user" ? "You" : "Archive"}
                       </div>
-                    )}
-                    {m.role === "assistant" &&
-                      m.content &&
-                      !streaming &&
-                      idx === active.messages.length - 1 && (
-                        <div className="followups">
+                      <div className="msg-text">
+                        {text ||
+                          (isLive ? (
+                            <span className="msg-typing">
+                              <span className="msg-dots" aria-hidden>
+                                <i />
+                                <i />
+                                <i />
+                              </span>
+                              Consulting the tomes…
+                            </span>
+                          ) : (
+                            ""
+                          ))}
+                        {showCaret && text ? (
+                          <span className="msg-caret" aria-hidden />
+                        ) : null}
+                      </div>
+                      {m.role === "assistant" &&
+                        m.sources &&
+                        m.sources.length > 0 &&
+                        settled && (
+                          <div className="msg-fade-in">
+                            <SourceCards sources={m.sources} />
+                          </div>
+                        )}
+                      {settled && (
+                        <div className="msg__actions msg-fade-in">
+                          <button
+                            type="button"
+                            onClick={() => void copyText(m.content)}
+                          >
+                            Copy
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => regenerate(idx)}
+                            disabled={streaming}
+                          >
+                            Regenerate
+                          </button>
+                        </div>
+                      )}
+                      {settled && idx === active.messages.length - 1 && (
+                        <div className="followups msg-fade-in">
                           {FOLLOWUPS.map((f) => (
                             <button
                               key={f}
@@ -432,10 +507,11 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
                           ))}
                         </div>
                       )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
           <div ref={bottomRef} />
         </div>

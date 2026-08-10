@@ -23,7 +23,7 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
 INGEST_TOKEN = os.getenv("INGEST_TOKEN", "dev-ingest-token")
 DATA_DIR = Path(os.getenv("DATA_DIR", str(_BACKEND_DIR / "data")))
 EMBED_MODEL_NAME = os.getenv("EMBED_MODEL_NAME", "BAAI/bge-base-en-v1.5")
-DEFAULT_TOP_K = int(os.getenv("DEFAULT_TOP_K", "8"))
+DEFAULT_TOP_K = int(os.getenv("DEFAULT_TOP_K", "5"))
 CORS_ORIGINS = [
     o.strip()
     for o in os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")

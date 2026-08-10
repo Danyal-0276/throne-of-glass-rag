@@ -68,7 +68,7 @@ export default function LandingStory() {
               trigger: hero,
               start: "top top",
               end: "bottom top",
-              scrub: 0.65,
+            scrub: true,
             },
           })
           .to(bg, { scale: 1.08, ease: "none" }, 0)
@@ -85,10 +85,13 @@ export default function LandingStory() {
       );
 
       if (passage && panels.length > 1) {
+        gsap.set(panels, { force3D: true });
         panels.forEach((panel, i) => {
           gsap.set(panel, {
             zIndex: i + 1,
             yPercent: i === 0 ? 0 : 100,
+            scale: 1,
+            opacity: 1,
           });
         });
 
@@ -96,16 +99,20 @@ export default function LandingStory() {
           scrollTrigger: {
             trigger: passage,
             start: "top top",
-            end: () => `+=${panels.length * window.innerHeight * 0.92}`,
-            scrub: 0.7,
+            end: () =>
+              `+=${Math.max(1, panels.length - 1) * window.innerHeight * 0.7}`,
+            scrub: true,
             pin: true,
-            anticipatePin: 1,
+            anticipatePin: 0.5,
             invalidateOnRefresh: true,
+            fastScrollEnd: true,
           },
         });
 
+        // One clean slide per panel; previous panel eases back slightly
         panels.forEach((panel, i) => {
           if (i === 0) return;
+          const prev = panels[i - 1];
           tl.to(
             panel,
             {
@@ -114,21 +121,14 @@ export default function LandingStory() {
               duration: 1,
             },
             i - 1,
-          );
-        });
-
-        // Soft scale on the panel being covered
-        panels.forEach((panel, i) => {
-          if (i >= panels.length - 1) return;
-          tl.to(
-            panel,
+          ).to(
+            prev,
             {
-              scale: 0.94,
-              opacity: 0.72,
+              scale: 0.97,
               ease: "none",
               duration: 1,
             },
-            i,
+            i - 1,
           );
         });
       }
