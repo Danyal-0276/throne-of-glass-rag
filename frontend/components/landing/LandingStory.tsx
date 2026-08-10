@@ -32,7 +32,7 @@ const PEEKS = [
   },
 ];
 
-const STRIP = [
+const FAN = [
   { label: "Characters", href: "/characters", img: "/images/characters/aelin.png" },
   { label: "Villains", href: "/villains", img: "/images/locations/morath.png" },
   { label: "Places", href: "/world", img: "/images/locations/terrasen.png" },
@@ -48,13 +48,9 @@ export default function LandingStory() {
     if (!root) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     const ctx = gsap.context(() => {
-      if (reduced) {
-        gsap.set(".story-hero__g, .story-hero__copy, .story-calm, .story-stack__card, .story-horiz__strip", {
-          clearProps: "all",
-        });
-        return;
-      }
+      if (reduced) return;
 
       const hero = root.querySelector(".story-hero");
       const bg = root.querySelector(".story-hero__bg");
@@ -65,129 +61,196 @@ export default function LandingStory() {
       if (hero && mark && copy && bg) {
         gsap.set(mark, { transformOrigin: "50% 50%" });
 
-        const heroTl = gsap.timeline({
-          scrollTrigger: {
-            trigger: hero,
-            start: "top top",
-            end: "bottom top",
-            scrub: 0.65,
-          },
-        });
-
-        heroTl
-          .to(bg, { scale: 1.12, filter: "saturate(0.95) brightness(0.38)", ease: "none" }, 0)
-          .to(mark, { scale: 1.45, rotate: 22, opacity: 0.2, ease: "none" }, 0)
-          .to(copy, { y: -90, opacity: 0, ease: "none" }, 0)
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: hero,
+              start: "top top",
+              end: "bottom top",
+              scrub: 0.65,
+            },
+          })
+          .to(bg, { scale: 1.1, ease: "none" }, 0)
+          .to(mark, { scale: 1.35, rotate: 16, opacity: 0.35, ease: "none" }, 0)
+          .to(copy, { y: -70, opacity: 0, ease: "none" }, 0)
           .to(hint, { opacity: 0, ease: "none" }, 0);
       }
 
       root.querySelectorAll<HTMLElement>(".story-calm").forEach((el) => {
-        gsap.fromTo(
-          el.children,
-          { y: 36, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.9,
-            stagger: 0.08,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: el,
-              start: "top 78%",
-              end: "top 40%",
-              scrub: 0.8,
-            },
+        gsap.from(el.children, {
+          y: 28,
+          opacity: 0,
+          duration: 0.7,
+          stagger: 0.07,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 82%",
+            toggleActions: "play none none reverse",
           },
-        );
+        });
       });
 
       root.querySelectorAll<HTMLElement>(".story-stack__card").forEach((card) => {
         const inner = card.querySelector(".story-stack__inner");
-        const img = card.querySelector("img");
-        gsap.fromTo(
-          img,
-          { scale: 1.08, y: 40 },
-          {
-            scale: 1,
-            y: 0,
-            ease: "none",
+        if (inner) {
+          gsap.from(inner, {
+            y: 36,
+            opacity: 0,
+            duration: 0.75,
+            ease: "power2.out",
             scrollTrigger: {
               trigger: card,
-              start: "top bottom",
-              end: "top 20%",
-              scrub: 0.7,
+              start: "top 75%",
+              toggleActions: "play none none reverse",
             },
-          },
-        );
-        if (inner) {
-          gsap.fromTo(
-            inner,
-            { y: 48, opacity: 0.35, rotateX: 6 },
-            {
-              y: 0,
-              opacity: 1,
-              rotateX: 0,
-              ease: "none",
-              scrollTrigger: {
-                trigger: card,
-                start: "top 85%",
-                end: "top 35%",
-                scrub: 0.7,
-              },
-            },
-          );
+          });
         }
       });
 
-      const horiz = root.querySelector(".story-horiz");
-      const pin = root.querySelector(".story-horiz__pin");
-      const strip = root.querySelector(".story-horiz__strip");
-      if (horiz && pin && strip) {
-        const getTravel = () =>
-          Math.max(0, (strip as HTMLElement).scrollWidth - (pin as HTMLElement).clientWidth + 48);
+      const fanSection = root.querySelector<HTMLElement>(".story-fan");
+      const fanStage = root.querySelector<HTMLElement>(".story-fan__stage");
+      const fanCards = gsap.utils.toArray<HTMLElement>(".story-fan__card", root);
+      const canFan =
+        fanSection &&
+        fanStage &&
+        fanCards.length &&
+        window.matchMedia("(min-width: 701px)").matches;
 
-        gsap.to(strip, {
-          x: () => -getTravel(),
-          ease: "none",
+      if (canFan) {
+        const mid = (fanCards.length - 1) / 2;
+        const spreads = fanCards.map((_, i) => {
+          const t = i - mid;
+          return {
+            x: t * 118,
+            y: Math.abs(t) * 18,
+            rotate: t * 9,
+            z: 10 - Math.abs(t),
+          };
+        });
+
+        gsap.set(fanCards, {
+          x: 0,
+          y: 40,
+          rotate: 0,
+          scale: 0.92,
+          opacity: 0,
+          transformOrigin: "50% 100%",
+        });
+
+        const fanTl = gsap.timeline({
           scrollTrigger: {
-            trigger: horiz,
-            start: "top top",
-            end: () => `+=${Math.max(getTravel() * 1.15, window.innerHeight)}`,
-            scrub: 0.8,
-            pin: pin,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
+            trigger: fanSection,
+            start: "top 70%",
+            toggleActions: "play none none reverse",
+            onReverseComplete: () => {
+              fanStage.classList.remove("is-open");
+            },
+          },
+          onComplete: () => {
+            fanStage.classList.add("is-open");
           },
         });
+
+        fanCards.forEach((card, i) => {
+          const s = spreads[i];
+          card.style.zIndex = String(20 + s.z);
+          card.style.setProperty("--fan-delay", `${i * 0.18}s`);
+          fanTl.to(
+            card,
+            {
+              x: s.x,
+              y: s.y,
+              rotate: s.rotate,
+              scale: 1,
+              opacity: 1,
+              duration: 0.85,
+              ease: "power3.out",
+            },
+            i * 0.06,
+          );
+        });
+
+        const onEnter = (e: Event) => {
+          const target = e.currentTarget as HTMLElement;
+          fanStage.classList.add("is-focus");
+          fanCards.forEach((card, i) => {
+            const s = spreads[i];
+            if (card === target) {
+              card.classList.add("is-active");
+              gsap.to(card, {
+                scale: 1.1,
+                x: s.x,
+                y: s.y - 30,
+                rotate: 0,
+                opacity: 1,
+                zIndex: 40,
+                duration: 0.35,
+                ease: "power2.out",
+                overwrite: "auto",
+              });
+            } else {
+              card.classList.remove("is-active");
+              const dir =
+                spreads[i].x === 0 ? (i < mid ? -1 : 1) : Math.sign(spreads[i].x);
+              gsap.to(card, {
+                scale: 0.92,
+                x: s.x + dir * 22,
+                y: s.y + 14,
+                rotate: s.rotate * 1.15,
+                opacity: 0.55,
+                zIndex: 20 + s.z,
+                duration: 0.35,
+                ease: "power2.out",
+                overwrite: "auto",
+              });
+            }
+          });
+        };
+
+        const onLeave = () => {
+          fanStage.classList.remove("is-focus");
+          fanCards.forEach((card, i) => {
+            const s = spreads[i];
+            card.classList.remove("is-active");
+            gsap.to(card, {
+              scale: 1,
+              x: s.x,
+              y: s.y,
+              rotate: s.rotate,
+              opacity: 1,
+              zIndex: 20 + s.z,
+              duration: 0.4,
+              ease: "power2.out",
+              overwrite: "auto",
+            });
+          });
+        };
+
+        fanCards.forEach((card) => {
+          card.addEventListener("mouseenter", onEnter);
+          card.addEventListener("focus", onEnter);
+          card.addEventListener("blur", onLeave);
+        });
+        fanStage.addEventListener("mouseleave", onLeave);
       }
 
-      root.querySelectorAll<HTMLElement>(".story-cta-row .btn").forEach((btn, i) => {
-        gsap.fromTo(
-          btn,
-          { y: 18, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: btn.parentElement,
-              start: "top 85%",
-              end: "top 55%",
-              scrub: 0.6,
-            },
-            delay: i * 0.05,
+      root.querySelectorAll<HTMLElement>(".story-cta-row .btn").forEach((btn) => {
+        gsap.from(btn, {
+          y: 16,
+          opacity: 0,
+          duration: 0.55,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: btn,
+            start: "top 90%",
+            toggleActions: "play none none reverse",
           },
-        );
+        });
       });
     }, root);
 
-    const onResize = () => ScrollTrigger.refresh();
-    window.addEventListener("resize", onResize);
-
-    return () => {
-      window.removeEventListener("resize", onResize);
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
   return (
@@ -217,8 +280,8 @@ export default function LandingStory() {
         <p className="eyebrow">The telling</p>
         <h2>Not a menu. A passage.</h2>
         <p>
-          One continuous scroll: pinned scenes, stacked peeks, and sideways
-          glances before you step into the archives.
+          One continuous scroll through pinned scenes and stacked peeks, then a
+          fan of doors into the archives.
         </p>
       </section>
 
@@ -243,19 +306,24 @@ export default function LandingStory() {
         ))}
       </section>
 
-      <section className="story-horiz">
-        <div className="story-horiz__pin">
+      <section className="story-fan">
+        <div className="story-fan__copy">
           <p className="eyebrow">Across the map</p>
-          <h2>Sneak peeks while you scroll</h2>
-          <div className="story-horiz__strip">
-            {STRIP.map((item) => (
-              <Link key={item.label} href={item.href} className="story-horiz__card">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.img} alt="" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
-          </div>
+          <h2>Choose a door</h2>
+          <p>Hover a card to draw it forward. Each one opens a wing of the archive.</p>
+        </div>
+        <div className="story-fan__stage" aria-label="Archive peeks">
+          {FAN.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="story-fan__card"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={item.img} alt="" />
+              <span>{item.label}</span>
+            </Link>
+          ))}
         </div>
       </section>
 
