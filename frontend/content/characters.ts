@@ -685,7 +685,7 @@ export const characters: Character[] = [
     powers: ["Wolf shift", "Fae strength and speed", "Warrior skill"],
     traits: ["witty", "fierce", "loyal", "haunted", "charming", "reckless"],
     appearance:
-      "Golden good looks, easy grin, and the coiled readiness of a predator who has worn a collar too long. In wolf form he is moonlit muscle and teeth; in Fae form the smile never quite hides the storm.",
+      "A beautiful but unmistakably masculine Fae warrior: long curly golden hair, dark onyx eyes, and tanned bronze skin, with pointed ears and sharpened canines. In wolf form he is a massive white wolf; the easy grin never quite hides centuries of battle-readiness.",
     personality:
       "He jokes to keep the dark at bay and loves hard once trust is earned. Beneath the flirtation sits grief for Connall and a hunger for a life no queen can command.",
     notableFor:
@@ -725,7 +725,7 @@ export const characters: Character[] = [
     powers: ["Lion shift", "Fae combat mastery", "Centuries of war experience"],
     traits: ["honorable", "steadfast", "protective", "reserved", "brave", "dutiful"],
     appearance:
-      "Golden hair, feline grace, and the solid presence of a warrior called the Lion for more than his shift. Age sits lightly on him; regret sits heavier, visible mostly in how carefully he watches Aedion.",
+      "Tall and broad-shouldered with feline grace: tan skin, tawny-orange eyes, and golden hair cropped just below his neck. His face looks kind and composed, not elderly, with pointed ears, subtle Fae canines, and a tattoo band around his neck for soldiers he lost.",
     personality:
       "Calm, principled, and slow to anger, he carries guilt without making it anyone else's burden. When he loves, he loves by standing in the path of the blade.",
     notableFor:
