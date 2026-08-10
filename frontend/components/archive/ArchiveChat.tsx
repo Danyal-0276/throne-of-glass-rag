@@ -355,7 +355,7 @@ export default function ArchiveChat({ initialQuery, characterSlug }: Props) {
             <div className="empty-archive">
               <h2 className="font-display">Ask the tomes</h2>
               <p>
-                Inquire about characters, places, and events — answers are drawn
+                Inquire about characters, places, and events. Answers are drawn
                 from the indexed archive and limited by your spoiler setting.
               </p>
             </div>

@@ -89,7 +89,7 @@ export function SpoilerSelect({ className = "" }: { className?: string }) {
       <select
         value={String(maxBook)}
         onChange={(e) => setMaxBook(Number(e.target.value))}
-        aria-label="Spoiler protection — highest book you've read"
+        aria-label="Spoiler protection: highest book you've read"
       >
         {BOOK_ORDER.map((n) => (
           <option key={n} value={n}>

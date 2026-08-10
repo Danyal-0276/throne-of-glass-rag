@@ -15,7 +15,12 @@ export default function VillainsPage() {
       </p>
       <div className="entity-grid">
         {villains.map((v) => (
-          <Link key={v.slug} href={`/villains/${v.slug}`} className="entity-card">
+          <Link
+            key={v.slug}
+            href={`/villains/${v.slug}`}
+            className="entity-card"
+            data-mood={v.mood}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={v.image} alt="" />
             <div>

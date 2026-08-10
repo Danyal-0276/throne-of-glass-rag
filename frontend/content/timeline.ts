@@ -4,7 +4,7 @@ export const timeline: TimelineBook[] = [
   {
     "bookNumber": 0.5,
     "title": "The Assassin's Blade",
-    "subtitle": "Prequel novellas — before the glass castle",
+    "subtitle": "Prequel novellas before the glass castle",
     "beats": [
       {
         "id": "tab-1",
@@ -15,7 +15,7 @@ export const timeline: TimelineBook[] = [
       {
         "id": "tab-2",
         "title": "The Assassin and the Healer",
-        "summary": "A wounded assassin in a desert outpost crosses paths with Yrene — kindness in a life built on blades.",
+        "summary": "A wounded assassin in a desert outpost crosses paths with Yrene: kindness in a life built on blades.",
         "minBook": 0.5
       },
       {
@@ -27,7 +27,7 @@ export const timeline: TimelineBook[] = [
       {
         "id": "tab-4",
         "title": "The Assassin and the Underworld",
-        "summary": "Back in Rifthold's shadows, loyalty to the Guild is tested — and so is Celaena's heart.",
+        "summary": "Back in Rifthold's shadows, loyalty to the Guild is tested, and so is Celaena's heart.",
         "minBook": 0.5
       },
       {
@@ -65,7 +65,7 @@ export const timeline: TimelineBook[] = [
       {
         "id": "com-1",
         "title": "King's Champion",
-        "summary": "Freedom has terms — and the castle's shadows grow teeth.",
+        "summary": "Freedom has terms, and the castle's shadows grow teeth.",
         "minBook": 2
       },
       {
@@ -109,7 +109,7 @@ export const timeline: TimelineBook[] = [
       {
         "id": "qos-2",
         "title": "Collars and crowns",
-        "summary": "Adarlan's grip slips — violently.",
+        "summary": "Adarlan's grip slips, violently.",
         "minBook": 4
       }
     ]

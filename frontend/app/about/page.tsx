@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <section className="section" style={{ maxWidth: 720 }}>
+    <section className="section archive-index" style={{ maxWidth: 720 }}>
       <p className="section__eyebrow">Disclaimer</p>
       <h1 className="section__title">About this archive</h1>
       <p className="section__lede" style={{ maxWidth: "100%" }}>
@@ -25,7 +25,7 @@ export default function AboutPage() {
       >
         <p>
           Characters, place names, and story elements belong to their respective
-          creators. Text and images here are fan-made summaries and atmosphere —
+          creators. Text and images here are fan-made summaries and atmosphere,
           not a substitute for the novels.
         </p>
         <p>
@@ -39,8 +39,8 @@ export default function AboutPage() {
           Prefer the books. Support the author by purchasing official editions.
         </p>
       </div>
-      <Link href="/archive" className="btn" style={{ marginTop: "2rem" }}>
-        Enter the Archive
+      <Link href="/?ask=1" className="btn" style={{ marginTop: "2rem" }}>
+        Ask the Archive
       </Link>
     </section>
   );

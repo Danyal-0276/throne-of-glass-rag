@@ -21,10 +21,12 @@ export default async function LocationPage({ params }: Props) {
   if (!loc) notFound();
 
   return (
-    <article className="detail">
+    <article className="detail" data-mood={loc.mood}>
       <div className="detail__hero">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={loc.image} alt="" style={{ aspectRatio: "4 / 3" }} />
+        <div className="detail__hero-media">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={loc.image} alt="" />
+        </div>
         <div className="detail__hero-copy">
           <p className="eyebrow">{loc.region}</p>
           <h1>{loc.name}</h1>
@@ -32,30 +34,25 @@ export default async function LocationPage({ params }: Props) {
           <Link
             href={`/?ask=1&q=${encodeURIComponent(loc.askPrompt)}`}
             className="btn"
+            style={{ marginTop: "1.25rem" }}
           >
             Ask the Archive
           </Link>
         </div>
       </div>
       <div className="detail__grid">
-        {loc.rulingPower && (
-          <section>
-            <h2>Ruling power</h2>
-            <p>{loc.rulingPower}</p>
-          </section>
-        )}
-        {loc.climate && (
-          <section>
-            <h2>Climate &amp; feel</h2>
-            <p>{loc.climate}</p>
-          </section>
-        )}
-        {loc.significance && (
-          <section>
-            <h2>Narrative weight</h2>
-            <p>{loc.significance}</p>
-          </section>
-        )}
+        <section>
+          <h2>Ruling power</h2>
+          <p>{loc.rulingPower}</p>
+        </section>
+        <section>
+          <h2>Climate and feel</h2>
+          <p>{loc.climate}</p>
+        </section>
+        <section>
+          <h2>Narrative weight</h2>
+          <p>{loc.significance}</p>
+        </section>
         <section>
           <h2>Aesthetics</h2>
           <div className="chip-row">
@@ -68,7 +65,7 @@ export default async function LocationPage({ params }: Props) {
         </section>
       </div>
       <p className="detail__back">
-        <Link href="/world">← All places</Link>
+        <Link href="/world">All places</Link>
       </p>
     </article>
   );

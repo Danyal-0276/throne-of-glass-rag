@@ -12,7 +12,7 @@ const ArchiveChat = dynamic(() => import("@/components/archive/ArchiveChat"), {
   ),
 });
 
-/** Minimal oracle orb — closed by default; expands into compact chat. */
+/** Minimal oracle orb, closed by default; expands into compact chat. */
 export default function ChatOrb() {
   const pathname = usePathname();
   const router = useRouter();

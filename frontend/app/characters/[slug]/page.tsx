@@ -22,18 +22,21 @@ export default async function CharacterPage({ params }: Props) {
   if (!c) notFound();
 
   return (
-    <article className="detail">
+    <article className="detail" data-mood={c.mood}>
       <div className="detail__hero">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={c.image} alt="" />
+        <div className="detail__hero-media">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={c.image} alt="" />
+        </div>
         <div className="detail__hero-copy">
-          <p className="eyebrow">Character</p>
+          <p className="eyebrow">Character · {c.species}</p>
           <h1>{c.name}</h1>
           <p className="detail__aliases">{c.aliases.join(" · ")}</p>
           <p>{c.blurb}</p>
           <Link
             href={`/?ask=1&q=${encodeURIComponent(c.askPrompt)}&character=${c.slug}`}
             className="btn"
+            style={{ marginTop: "1.25rem" }}
           >
             Ask about {c.shortName}
           </Link>
@@ -41,11 +44,25 @@ export default async function CharacterPage({ params }: Props) {
       </div>
       <div className="detail__grid">
         <section>
+          <h2>Allegiance</h2>
+          <p>{c.allegiance}</p>
+        </section>
+        <section>
           <h2>Also known as</h2>
           <div className="chip-row">
             {c.aliases.map((a) => (
               <span key={a} className="chip">
                 {a}
+              </span>
+            ))}
+          </div>
+        </section>
+        <section>
+          <h2>Powers</h2>
+          <div className="chip-row">
+            {c.powers.map((p) => (
+              <span key={p} className="chip">
+                {p}
               </span>
             ))}
           </div>
@@ -65,7 +82,7 @@ export default async function CharacterPage({ params }: Props) {
         </section>
       </div>
       <p className="detail__back">
-        <Link href="/characters">← All characters</Link>
+        <Link href="/characters">All characters</Link>
       </p>
     </article>
   );

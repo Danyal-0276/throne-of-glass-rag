@@ -21,10 +21,12 @@ export default async function VillainDetailPage({ params }: Props) {
   if (!v) notFound();
 
   return (
-    <article className="detail">
+    <article className="detail" data-mood={v.mood}>
       <div className="detail__hero">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={v.image} alt="" />
+        <div className="detail__hero-media">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={v.image} alt="" />
+        </div>
         <div className="detail__hero-copy">
           <p className="eyebrow">{v.domain}</p>
           <h1>{v.name}</h1>
@@ -33,6 +35,7 @@ export default async function VillainDetailPage({ params }: Props) {
           <Link
             href={`/?ask=1&q=${encodeURIComponent(v.askPrompt)}`}
             className="btn"
+            style={{ marginTop: "1.25rem" }}
           >
             Ask the Archive
           </Link>
@@ -57,7 +60,7 @@ export default async function VillainDetailPage({ params }: Props) {
         </section>
       </div>
       <p className="detail__back">
-        <Link href="/villains">← All villains</Link>
+        <Link href="/villains">All villains</Link>
       </p>
     </article>
   );

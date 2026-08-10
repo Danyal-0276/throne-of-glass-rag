@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s · Throne of Glass Archive",
   },
   description:
-    "Immersive unofficial Throne of Glass fan archive — scrollytelling, characters, villains, places, and a quiet oracle chatbot.",
+    "Immersive unofficial Throne of Glass fan archive with scrollytelling, characters, villains, places, and a quiet oracle chatbot.",
   icons: {
     icon: "/icon.svg",
   },
