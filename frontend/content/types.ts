@@ -14,6 +14,26 @@ export type Character = {
   arcSummary: string;
   arcByBook: ArcByBook[];
   askPrompt: string;
+  species?: string;
+  allegiance?: string;
+  powers?: string[];
+  accent?: string;
+};
+
+export type Villain = {
+  slug: string;
+  name: string;
+  shortName: string;
+  titles: string[];
+  image: string;
+  blurb: string;
+  affiliation: string;
+  domain: string;
+  motivations: string;
+  conflicts: string[];
+  askPrompt: string;
+  accent?: string;
+  minBook?: number;
 };
 
 export type Location = {
@@ -24,6 +44,10 @@ export type Location = {
   blurb: string;
   aesthetics: string[];
   askPrompt: string;
+  rulingPower?: string;
+  climate?: string;
+  significance?: string;
+  accent?: string;
 };
 
 export type TimelineBeat = {

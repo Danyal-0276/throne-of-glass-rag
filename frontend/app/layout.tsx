@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Fraunces, Source_Sans_3 } from "next/font/google";
-import Nav from "@/components/Nav";
+import { Suspense } from "react";
+import FloatingNav from "@/components/FloatingNav";
+import ChatOrb from "@/components/ChatOrb";
 import { SpoilerProvider } from "@/lib/spoiler";
 import "./globals.css";
 
@@ -22,7 +24,10 @@ export const metadata: Metadata = {
     template: "%s · Throne of Glass Archive",
   },
   description:
-    "An immersive fan archive for Sarah J. Maas's Throne of Glass — characters, world, timeline, and a spoiler-aware chatbot.",
+    "Immersive unofficial Throne of Glass fan archive — scrollytelling, characters, villains, places, and a quiet oracle chatbot.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -37,13 +42,16 @@ export default function RootLayout({
     >
       <body className="min-h-full">
         <SpoilerProvider>
-          <div className="site-shell">
-            <Nav />
-            <main style={{ flex: 1 }}>{children}</main>
+          <div className="site-shell site-shell--immersive">
+            <FloatingNav />
+            <main className="site-main">{children}</main>
             <footer className="disclaimer-strip">
-              Unofficial fan archive · Not affiliated with Sarah J. Maas, Bloomsbury,
-              or any rights holders · Spoilers gated by your reading progress
+              Unofficial fan archive · Not affiliated with Sarah J. Maas or
+              Bloomsbury · Personal passion project
             </footer>
+            <Suspense fallback={null}>
+              <ChatOrb />
+            </Suspense>
           </div>
         </SpoilerProvider>
       </body>
