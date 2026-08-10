@@ -1,34 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { locations } from "@/content/locations";
 
-export const metadata: Metadata = {
-  title: "World",
-};
+export const metadata: Metadata = { title: "Places" };
 
 export default function WorldPage() {
   return (
-    <section className="section">
+    <section className="section archive-index">
       <p className="section__eyebrow">Map of Erilea</p>
-      <h1 className="section__title">World</h1>
+      <h1 className="section__title">Places</h1>
       <p className="section__lede">
-        Capitals, wastes, and courts — each place a mood of its own. Tap a
-        location to linger, or ask the archive to dig deeper.
+        Capitals, wastes, deserts, and courts — each a mood of its own.
       </p>
-      <div className="grid-cards">
+      <div className="entity-grid">
         {locations.map((loc) => (
-          <Link key={loc.slug} href={`/world/${loc.slug}`} className="location-card">
-            <Image
-              src={loc.image}
-              alt={loc.name}
-              width={600}
-              height={400}
-              style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: 280 }}
-            />
-            <div className="location-card__meta">
-              <h3 className="font-display">{loc.name}</h3>
-              <p>{loc.region}</p>
+          <Link key={loc.slug} href={`/world/${loc.slug}`} className="entity-card">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={loc.image} alt="" />
+            <div>
+              <p className="entity-card__meta">{loc.region}</p>
+              <h2>{loc.name}</h2>
+              <p>{loc.blurb}</p>
             </div>
           </Link>
         ))}

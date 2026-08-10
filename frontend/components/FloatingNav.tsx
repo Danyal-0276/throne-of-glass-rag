@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { motion } from "framer-motion";
 import { SpoilerSelect } from "@/lib/spoiler";
 import SiteMark from "@/components/SiteMark";
 
@@ -18,7 +17,6 @@ const LINKS = [
 
 export default function FloatingNav() {
   const pathname = usePathname();
-  const [expanded, setExpanded] = useState(false);
 
   return (
     <motion.div
@@ -31,37 +29,26 @@ export default function FloatingNav() {
         className="float-nav__capsule"
         animate={{ y: [0, -3, 0] }}
         transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
-        onMouseEnter={() => setExpanded(true)}
-        onMouseLeave={() => setExpanded(false)}
       >
         <Link href="/" className="float-nav__mark" aria-label="Home">
           <SiteMark size={28} />
         </Link>
 
-        <AnimatePresence initial={false}>
-          {(expanded || true) && (
-            <motion.nav
-              className="float-nav__links"
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: "auto", opacity: 1 }}
-              transition={{ duration: 0.35 }}
-            >
-              {LINKS.map((link) => {
-                const active = link.match(pathname);
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="float-nav__link"
-                    data-active={active}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </motion.nav>
-          )}
-        </AnimatePresence>
+        <nav className="float-nav__links" aria-label="Primary">
+          {LINKS.map((link) => {
+            const active = link.match(pathname);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="float-nav__link"
+                data-active={active}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
 
         <div className="float-nav__spoiler">
           <SpoilerSelect />

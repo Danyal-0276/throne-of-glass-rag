@@ -22,61 +22,51 @@ export default async function CharacterPage({ params }: Props) {
   if (!c) notFound();
 
   return (
-    <>
-      <div className="detail-hero">
-        <div
-          className="detail-hero__bg"
-          style={{ backgroundImage: `url(${c.image})` }}
-        />
-        <div className="hero__veil" />
-        <div className="hero__content" style={{ paddingBottom: "2.5rem" }}>
-          <p className="section__eyebrow">Character</p>
-          <h1 className="font-display" style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)", margin: 0 }}>
-            {c.name}
-          </h1>
+    <article className="detail">
+      <div className="detail__hero">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={c.image} alt="" />
+        <div className="detail__hero-copy">
+          <p className="eyebrow">Character</p>
+          <h1>{c.name}</h1>
+          <p className="detail__aliases">{c.aliases.join(" · ")}</p>
+          <p>{c.blurb}</p>
+          <Link
+            href={`/?ask=1&q=${encodeURIComponent(c.askPrompt)}&character=${c.slug}`}
+            className="btn"
+          >
+            Ask about {c.shortName}
+          </Link>
         </div>
       </div>
-      <div className="detail-body">
-        <p style={{ fontSize: "1.1rem", lineHeight: 1.7, color: "rgba(232,220,200,0.85)" }}>
-          {c.blurb}
-        </p>
-
-        <h2 className="font-display" style={{ marginTop: "2rem", fontSize: "1.35rem" }}>
-          Also known as
-        </h2>
-        <div className="chip-row">
-          {c.aliases.map((a) => (
-            <span key={a} className="chip">
-              {a}
-            </span>
-          ))}
-        </div>
-
-        <h2 className="font-display" style={{ marginTop: "2rem", fontSize: "1.35rem" }}>
-          Relationships
-        </h2>
-        <ul style={{ color: "rgba(232,220,200,0.8)", lineHeight: 1.7 }}>
-          {c.relationships.map((r) => (
-            <li key={r}>{r}</li>
-          ))}
-        </ul>
-
-        <h2 className="font-display" style={{ marginTop: "2rem", fontSize: "1.35rem" }}>
-          Arc
-        </h2>
-        <p style={{ color: "rgba(232,220,200,0.8)", lineHeight: 1.65 }}>
-          {c.arcSummary}
-        </p>
-        <CharacterArc arcs={c.arcByBook} />
-
-        <Link
-          href={`/archive?q=${encodeURIComponent(c.askPrompt)}&character=${c.slug}`}
-          className="btn"
-          style={{ marginTop: "1.75rem" }}
-        >
-          Ask about {c.shortName}
-        </Link>
+      <div className="detail__grid">
+        <section>
+          <h2>Also known as</h2>
+          <div className="chip-row">
+            {c.aliases.map((a) => (
+              <span key={a} className="chip">
+                {a}
+              </span>
+            ))}
+          </div>
+        </section>
+        <section>
+          <h2>Relationships</h2>
+          <ul>
+            {c.relationships.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
+        </section>
+        <section>
+          <h2>Arc</h2>
+          <p>{c.arcSummary}</p>
+          <CharacterArc arcs={c.arcByBook} />
+        </section>
       </div>
-    </>
+      <p className="detail__back">
+        <Link href="/characters">← All characters</Link>
+      </p>
+    </article>
   );
 }

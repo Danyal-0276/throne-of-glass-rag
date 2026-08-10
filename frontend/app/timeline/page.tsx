@@ -7,7 +7,7 @@ export default function TimelinePage() {
   const { canReveal, maxBook } = useSpoiler();
 
   return (
-    <section className="section" style={{ maxWidth: "100%" }}>
+    <section className="section archive-index" style={{ maxWidth: "100%" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <p className="section__eyebrow">Reading order panels</p>
         <h1 className="section__title">Timeline</h1>

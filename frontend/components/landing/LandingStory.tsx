@@ -5,11 +5,6 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useRef } from "react";
 import SiteMark from "@/components/SiteMark";
 
-function usePrefersReducedMotion() {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
 export default function LandingStory() {
   const heroRef = useRef<HTMLElement>(null);
   const horizRef = useRef<HTMLElement>(null);
