@@ -19,6 +19,10 @@ export type Character = {
   species: string;
   allegiance: string;
   powers: string[];
+  traits: string[];
+  appearance: string;
+  personality: string;
+  notableFor: string;
   mood: Mood;
   accent?: string;
 };
@@ -35,6 +39,9 @@ export type Villain = {
   motivations: string;
   conflicts: string[];
   askPrompt: string;
+  traits: string[];
+  appearance: string;
+  notableFor: string;
   mood: Mood;
   accent?: string;
   minBook?: number;
@@ -66,5 +73,7 @@ export type TimelineBook = {
   bookNumber: number;
   title: string;
   subtitle: string;
+  cover: string;
+  overview: string;
   beats: TimelineBeat[];
 };
