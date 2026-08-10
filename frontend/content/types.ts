@@ -1,3 +1,5 @@
+export type Mood = "dawn" | "ember" | "shadow" | "void";
+
 export type ArcByBook = {
   minBook: number;
   text: string;
@@ -14,9 +16,10 @@ export type Character = {
   arcSummary: string;
   arcByBook: ArcByBook[];
   askPrompt: string;
-  species?: string;
-  allegiance?: string;
-  powers?: string[];
+  species: string;
+  allegiance: string;
+  powers: string[];
+  mood: Mood;
   accent?: string;
 };
 
@@ -32,6 +35,7 @@ export type Villain = {
   motivations: string;
   conflicts: string[];
   askPrompt: string;
+  mood: Mood;
   accent?: string;
   minBook?: number;
 };
@@ -44,9 +48,10 @@ export type Location = {
   blurb: string;
   aesthetics: string[];
   askPrompt: string;
-  rulingPower?: string;
-  climate?: string;
-  significance?: string;
+  rulingPower: string;
+  climate: string;
+  significance: string;
+  mood: Mood;
   accent?: string;
 };
 
