@@ -1,0 +1,113 @@
+import type { Location } from "./types";
+
+export const locations: Location[] = [
+  {
+    slug: "rifthold",
+    name: "Rifthold",
+    region: "Adarlan",
+    image: "/images/locations/rifthold.jpg",
+    blurb:
+      "Capital of Adarlan—glass, smoke, and empire. The Glass Castle crowns a city of canals, assassins' alleys, and the quiet terror of a magic-starved kingdom.",
+    aesthetics: [
+      "smoked glass towers",
+      "cold canal light",
+      "imperial banners",
+      "night markets",
+    ],
+    askPrompt: "Tell me about Rifthold",
+  },
+  {
+    slug: "terrasen",
+    name: "Terrasen (Orynth)",
+    region: "North",
+    image: "/images/locations/terrasen.jpg",
+    blurb:
+      "Pine, stone, and stubborn green—the homeland Aelin would burn the world to reclaim. Orynth's ruined glory still smells of oakwald wind and unfinished coronations.",
+    aesthetics: [
+      "evergreen forests",
+      "mountain cold",
+      "ash and rebirth",
+      "old stone halls",
+    ],
+    askPrompt: "Tell me about Terrasen",
+  },
+  {
+    slug: "wendlyn",
+    name: "Wendlyn",
+    region: "Across the sea",
+    image: "/images/locations/wendlyn.jpg",
+    blurb:
+      "Where magic never fully died. Misty coasts and Fae courts teach fire to a girl who thought she was only an assassin.",
+    aesthetics: [
+      "sea cliffs",
+      "mist and moss",
+      "Fae groves",
+      "training yards at dawn",
+    ],
+    askPrompt: "Tell me about Wendlyn",
+  },
+  {
+    slug: "doranelle",
+    name: "Doranelle",
+    region: "Fae realm",
+    image: "/images/locations/doranelle.jpg",
+    blurb:
+      "Maeve's seat—beautiful as a blade. Rivers of starlight and courts that smile while they bind you.",
+    aesthetics: [
+      "moonlit rivers",
+      "pale stone palaces",
+      "uncanny beauty",
+      "shadowed thrones",
+    ],
+    askPrompt: "Tell me about Doranelle",
+  },
+  {
+    slug: "western-wastes",
+    name: "Western Wastes",
+    region: "Witch territory",
+    image: "/images/locations/western-wastes.jpg",
+    blurb:
+      "Wind-scoured flatlands where Ironteeth hosts break wyverns and softness is a death sentence. Red dust, iron sky.",
+    aesthetics: ["dust storms", "wyvern wings", "iron and bone", "empty horizons"],
+    askPrompt: "Tell me about the Western Wastes",
+  },
+  {
+    slug: "morath",
+    name: "Morath",
+    region: "South of Adarlan",
+    image: "/images/locations/morath.jpg",
+    blurb:
+      "Erawan's fortress of nightmares—ilken, collars, and mountains that feel watched. A wound in the map.",
+    aesthetics: [
+      "black stone",
+      "sickly green magic",
+      "mountain fortress",
+      "oppressive dark",
+    ],
+    askPrompt: "Tell me about Morath",
+  },
+  {
+    slug: "antica",
+    name: "Antica",
+    region: "Southern Continent",
+    image: "/images/locations/antica.jpg",
+    blurb:
+      "Jewel of the khaganate—heat, scholarship, and the Torre Cesme's healing light. Ruks wheel above gold domes.",
+    aesthetics: ["sunlit domes", "desert edge", "healing halls", "ruk wings"],
+    askPrompt: "Tell me about Antica",
+  },
+  {
+    slug: "endovier",
+    name: "Endovier",
+    region: "Adarlan's north",
+    image: "/images/locations/endovier.jpg",
+    blurb:
+      "Salt mines that break bodies and names. The place Celaena crawled out of—and never truly left behind.",
+    aesthetics: ["white salt scars", "bleak mountains", "chains and cold", "grey light"],
+    askPrompt: "Tell me about Endovier",
+  },
+];
+
+export function getLocation(slug: string): Location | undefined {
+  return locations.find((l) => l.slug === slug);
+}

@@ -11,15 +11,18 @@ __pycache__/
 # Secrets / local env
 .env
 .env.local
+backend/.env
+frontend/.env.local
 
-# Generated vector index (rebuilt via `python main.py ingest`)
+# Generated / local data (PDFs + old numpy index)
 chroma_db/
 *.npy
+backend/data/*
+!backend/data/.gitkeep
 
-# Local documents — keep your own PDFs/txt out of the repo
-# (especially copyrighted books). Put files in data/ locally.
-data/*
-!data/.gitkeep
+frontend/node_modules/
+frontend/.next/
+frontend/out/
 
 # IDE / OS
 .vscode/

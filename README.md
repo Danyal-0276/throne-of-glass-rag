@@ -1,97 +1,109 @@
-# Throne of Glass RAG
+# Throne of Glass Archive (Monorepo)
 
-A from-scratch **Retrieval-Augmented Generation** app that answers questions over your documents. Built without LangChain/LlamaIndex so each step — chunk → embed → retrieve → generate — is explicit and easy to learn.
-
-Demo corpus: Sarah J. Maas’s *Throne of Glass* series (add the PDFs locally; they are **not** committed to this repo).
-
-## Features
-
-- Sentence-aware chunking (~350 words, overlapping windows)
-- Local embeddings with `BAAI/bge-base-en-v1.5` (no embedding API cost)
-- Lightweight NumPy vector store (no Chroma / C++ build tools required)
-- Character alias expansion (e.g. Aelin ↔ Celaena, Fireheart, Buzzard)
-- Groq LLM generation with a synthesis-focused prompt
-- Simple CLI: `ingest` then `ask`
-
-## How it works
-
-1. **Chunk** — files in `data/` are split into sentence-aware overlapping chunks  
-2. **Embed** — each chunk becomes a vector with a local sentence-transformers model  
-3. **Store** — vectors + metadata saved under `chroma_db/`  
-4. **Retrieve** — the question is expanded with aliases, embedded, and matched by cosine similarity (`top_k=8`)  
-5. **Generate** — retrieved passages are stuffed into a prompt and answered via Groq  
-
-## Project structure
+Unofficial fan archive + **dense RAG** chatbot for the *Throne of Glass* series.
 
 ```
 rag-project/
-├── data/                 # your .pdf / .txt files (gitignored)
-├── src/
-│   ├── chunker.py        # sentence-aware chunking
-│   ├── vector_store.py   # embeddings + NumPy index
-│   ├── aliases.py        # TOG name / title expansion
-│   └── generator.py      # Groq prompt + answer
-├── main.py               # CLI entry point
-├── requirements.txt
-├── .env.example
-└── README.md
+├── backend/     FastAPI + Postgres/pgvector + ingest
+├── frontend/    Next.js immersive site + Ask the Archive chat
+└── data/        Optional mirror of PDFs (gitignored)
 ```
 
-## Setup
+PDFs live in `backend/data/` (gitignored). Never commit books or `.env`.
 
-**Requirements:** Python 3.10+ (3.11–3.12 recommended; 3.14 works with this NumPy store)
+## Features
 
-```bash
-# 1. Clone
-git clone https://github.com/Danyal-0276/throne-of-glass-rag.git
-cd throne-of-glass-rag
+- Immersive pages: Home, World, Characters, Timeline, Archive, About
+- Spoiler gate (“I’ve read up to Book N”, books **01–08**)
+- Ask the Archive: streaming chat, threads, source cards, alias expansion
+- Dense RAG: BGE embeddings → pgvector → Groq
 
-# 2. Virtualenv
-python -m venv venv
-# Windows:
-venv\Scripts\activate
-# macOS/Linux:
-source venv/bin/activate
+Publication / chronological labels used for filenames and spoilers:
 
-# 3. Dependencies
+- **0.5** The Assassin’s Blade (prequel novellas — before Throne of Glass)
+- **01** Throne of Glass  
+- **02** Crown of Midnight  
+- **03** Heir of Fire  
+- **04** Queen of Shadows  
+- **05** Empire of Storms  
+- **06** Tower of Dawn  
+- **07** Kingdom of Ash  
+
+Spoiler filter and `max_book` accept `0.5` through `7`.
+
+## Prerequisites
+
+- Python 3.11+ (3.14 works with this stack)
+- Node.js 20+
+- PostgreSQL 18+ with **pgvector** extension
+
+### Enable pgvector (Windows)
+
+1. Install [pgvector](https://github.com/pgvector/pgvector) for your Postgres major version (or use Stack Builder if available).
+2. Create DB and schema:
+
+```powershell
+cd backend
+# Set your postgres password for this session:
+$env:PGPASSWORD = "YOUR_PASSWORD"
+& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -f scripts\init_db.sql
+```
+
+If `CREATE DATABASE` errors because `tog_rag` already exists, connect and run the extension/table statements only:
+
+```powershell
+& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d tog_rag -c "CREATE EXTENSION IF NOT EXISTS vector;"
+& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d tog_rag -f scripts\init_schema.sql
+```
+
+## Backend setup
+
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\activate
 pip install -r requirements.txt
-
-# 4. API key — free at https://console.groq.com
-cp .env.example .env
-# edit .env and set GROQ_API_KEY=...
-
-# 5. Add documents
-# Drop .pdf or .txt files into data/
-# Suggested naming: 01 - Throne of Glass - Sarah J. Maas.pdf
+copy .env.example .env
+# Edit .env: GROQ_API_KEY, DATABASE_URL password, INGEST_TOKEN
 ```
 
-## Usage
+Put renamed PDFs in `backend/data/` (already named `01 - …` through `08 - …`).
 
-```bash
-# Build / rebuild the index
-python main.py ingest
+Ingest (re-run whenever PDFs/model/chunking change):
 
-# Ask a question
-python main.py ask "Who is Aelin?"
-python main.py ask "Tell me about Fireheart"
-python main.py ask "Who is the Buzzard?"
+```powershell
+cd backend
+.\.venv\Scripts\activate
+python scripts\ingest.py
+# or: curl -X POST http://localhost:8000/ingest -H "Content-Type: application/json" -d "{\"token\":\"dev-ingest-token\",\"clear\":true}"
 ```
 
-You’ll see retrieved source chunks (with distances), then a synthesized answer grounded in that context.
+Run API:
 
-## Notes
+```powershell
+cd backend
+.\.venv\Scripts\activate
+uvicorn app.main:app --reload --port 8000
+```
 
-- Re-run `ingest` after changing the embedding model, chunker, or files in `data/`.
-- The Hugging Face model downloads on first ingest (~hundreds of MB).
-- Do **not** commit `.env` or copyrighted book files.
+Docs: http://localhost:8000/docs
 
-## Roadmap
+## Frontend setup
 
-- [ ] Search + answer UI with visible source cards (Streamlit or Next.js)
-- [ ] Optional book filter (spoiler-safe by series number)
-- [ ] Hybrid search (keyword + vector) and/or re-ranking
-- [ ] Stronger citation formatting in answers
+```powershell
+cd frontend
+npm install
+# .env.local already has NEXT_PUBLIC_API_URL=http://localhost:8000
+npm run dev
+```
 
-## License
+Open http://localhost:3000 — Archive at `/archive`.
 
-Code in this repository is yours to use for learning/portfolio. Book content remains © the respective authors/publishers — supply your own legally obtained copies locally.
+## Copyright
+
+Unofficial fan project, not affiliated with Sarah J. Maas or Bloomsbury.  
+Do not host book PDFs or long verbatim excerpts publicly. Site copy and generated art are original for this fan archive.
+
+## Future RAG upgrades
+
+v1 is dense RAG only. Planned later: Hybrid → light CRAG → optional Graph / Agentic / Multimodal.
