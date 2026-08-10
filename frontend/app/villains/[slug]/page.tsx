@@ -47,6 +47,24 @@ export default async function VillainDetailPage({ params }: Props) {
           <p>{v.affiliation}</p>
         </section>
         <section>
+          <h2>Appearance</h2>
+          <p>{v.appearance}</p>
+        </section>
+        <section>
+          <h2>Notable for</h2>
+          <p>{v.notableFor}</p>
+        </section>
+        <section>
+          <h2>Traits</h2>
+          <div className="chip-row">
+            {v.traits.map((t) => (
+              <span key={t} className="chip">
+                {t}
+              </span>
+            ))}
+          </div>
+        </section>
+        <section>
           <h2>Motivations</h2>
           <p>{v.motivations}</p>
         </section>

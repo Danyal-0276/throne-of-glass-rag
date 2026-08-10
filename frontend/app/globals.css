@@ -1454,3 +1454,205 @@ a {
   }
 }
 
+/* Custom cursor */
+@media (hover: hover) and (pointer: fine) {
+  body.has-custom-cursor,
+  body {
+    cursor: url("/cursors/ember.svg") 6 4, auto;
+  }
+  a,
+  button,
+  .btn,
+  .entity-card,
+  .float-nav__link,
+  .chat-orb,
+  .starter-chip,
+  .followup-chip,
+  select,
+  [role="button"] {
+    cursor: url("/cursors/ember-pointer.svg") 6 4, pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body,
+  a,
+  button {
+    cursor: auto;
+  }
+}
+
+/* Full-page book timeline */
+.book-saga__intro {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.book-chapter {
+  display: grid;
+  grid-template-columns: minmax(220px, 340px) 1fr;
+  gap: 2rem;
+  align-items: center;
+  min-height: 88vh;
+  padding: 5rem 1.5rem 4rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  border-top: 1px solid rgba(196, 165, 116, 0.16);
+}
+
+.book-chapter__cover {
+  position: relative;
+}
+
+.book-chapter__cover img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 0.35rem;
+  border: 1px solid rgba(196, 165, 116, 0.28);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.book-chapter__body h2 {
+  margin: 0.35rem 0 0.4rem;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+}
+
+.book-chapter__subtitle {
+  color: var(--gold);
+  margin: 0 0 1rem;
+  font-family: var(--font-ui), Cinzel, serif;
+  letter-spacing: 0.06em;
+  font-size: 0.85rem;
+}
+
+.book-chapter__overview {
+  color: rgba(232, 220, 200, 0.82);
+  line-height: 1.65;
+  margin: 0 0 1.5rem;
+  max-width: 38rem;
+}
+
+.book-chapter__beats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.book-chapter__beats li {
+  display: grid;
+  gap: 0.25rem;
+  padding-left: 0.85rem;
+  border-left: 1px solid rgba(196, 165, 116, 0.35);
+}
+
+.book-chapter__beats strong {
+  font-family: var(--font-ui), Cinzel, serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mood-accent, var(--ember-bright));
+  font-weight: 500;
+}
+
+.book-chapter__beats span {
+  color: rgba(232, 220, 200, 0.75);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.book-chapter.is-locked {
+  opacity: 0.55;
+}
+
+.book-chapter.is-locked .book-chapter__cover img {
+  filter: grayscale(0.7) brightness(0.5);
+}
+
+@media (max-width: 800px) {
+  .book-chapter {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 3rem 1.25rem;
+  }
+  .book-chapter__cover {
+    max-width: 240px;
+  }
+}
+
+/* Full Archive page */
+.archive-page {
+  position: relative;
+  min-height: 100vh;
+  padding: 5.5rem 1rem 2rem;
+}
+
+.archive-page__bg {
+  position: fixed;
+  inset: 0;
+  background: url("/images/ui/archive-bg.png") center/cover;
+  filter: brightness(0.35) saturate(0.85);
+  z-index: 0;
+}
+
+.archive-page__veil {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(196, 92, 38, 0.12), transparent 50%),
+    linear-gradient(180deg, rgba(10, 7, 6, 0.55), rgba(10, 7, 6, 0.88));
+  z-index: 0;
+}
+
+.archive-page__shell {
+  position: relative;
+  z-index: 1;
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.archive-page__header {
+  max-width: 40rem;
+}
+
+.archive-page__header h1 {
+  margin: 0.35rem 0 0.65rem;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+}
+
+.archive-page__header p {
+  margin: 0;
+  color: rgba(232, 220, 200, 0.75);
+  line-height: 1.55;
+}
+
+.archive-page__chat {
+  height: min(78vh, 820px);
+  border: 1px solid rgba(196, 165, 116, 0.22);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: rgba(14, 10, 9, 0.78);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
+
+.archive-page__chat .archive-shell,
+.archive-page__chat .archive-layout {
+  height: 100%;
+  min-height: 100%;
+  border: none;
+  background: transparent;
+}
+
+.entity-card img {
+  object-position: center 18%;
+}
+
+.story-hero {
+  margin-top: 0;
+}
+

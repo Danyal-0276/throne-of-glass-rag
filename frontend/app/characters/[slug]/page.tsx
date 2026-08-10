@@ -48,6 +48,28 @@ export default async function CharacterPage({ params }: Props) {
           <p>{c.allegiance}</p>
         </section>
         <section>
+          <h2>Appearance</h2>
+          <p>{c.appearance}</p>
+        </section>
+        <section>
+          <h2>Personality</h2>
+          <p>{c.personality}</p>
+        </section>
+        <section>
+          <h2>Notable for</h2>
+          <p>{c.notableFor}</p>
+        </section>
+        <section>
+          <h2>Traits</h2>
+          <div className="chip-row">
+            {c.traits.map((t) => (
+              <span key={t} className="chip">
+                {t}
+              </span>
+            ))}
+          </div>
+        </section>
+        <section>
           <h2>Also known as</h2>
           <div className="chip-row">
             {c.aliases.map((a) => (
