@@ -1,0 +1,33 @@
+# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Secrets / local env
+.env
+.env.local
+
+# Generated vector index (rebuilt via `python main.py ingest`)
+chroma_db/
+*.npy
+
+# Local documents — keep your own PDFs/txt out of the repo
+# (especially copyrighted books). Put files in data/ locally.
+data/*
+!data/.gitkeep
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Hugging Face / model caches (if ever stored in-project)
+.cache/
+models/
