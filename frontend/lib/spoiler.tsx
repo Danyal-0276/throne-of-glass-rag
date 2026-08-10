@@ -5,11 +5,13 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { BOOK_ORDER, BOOK_TITLES, formatBookLabel } from "@/content/timeline";
 
@@ -82,15 +84,52 @@ export function useSpoiler() {
   return ctx;
 }
 
+type MenuPos = { top: number; left: number; width: number };
+
 export function SpoilerSelect({ className = "" }: { className?: string }) {
   const { maxBook, setMaxBook } = useSpoiler();
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<MenuPos | null>(null);
+  const [mounted, setMounted] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => setMounted(true), []);
+
+  const updatePos = useCallback(() => {
+    const el = triggerRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const width = Math.min(300, Math.max(240, r.width + 40));
+    let left = r.right - width;
+    left = Math.max(12, Math.min(left, window.innerWidth - width - 12));
+    setPos({
+      top: r.bottom + 10,
+      left,
+      width,
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    updatePos();
+    const onWin = () => updatePos();
+    window.addEventListener("resize", onWin);
+    window.addEventListener("scroll", onWin, true);
+    return () => {
+      window.removeEventListener("resize", onWin);
+      window.removeEventListener("scroll", onWin, true);
+    };
+  }, [open, updatePos]);
 
   useEffect(() => {
     if (!open) return;
     const onPointer = (e: MouseEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (rootRef.current?.contains(t)) return;
+      const menu = document.getElementById("spoiler-select-menu");
+      if (menu?.contains(t)) return;
+      setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
@@ -105,12 +144,66 @@ export function SpoilerSelect({ className = "" }: { className?: string }) {
 
   const currentTitle = BOOK_TITLES[maxBook] ?? "Unknown";
 
+  const menu =
+    mounted &&
+    open &&
+    pos &&
+    createPortal(
+      <AnimatePresence>
+        <motion.ul
+          id="spoiler-select-menu"
+          className="spoiler-select__menu"
+          role="listbox"
+          aria-label="Highest book you have read"
+          style={{ top: pos.top, left: pos.left, width: pos.width }}
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <li className="spoiler-select__hint">Reveal through</li>
+          {BOOK_ORDER.map((n) => {
+            const active = n === maxBook;
+            return (
+              <li key={n} role="option" aria-selected={active}>
+                <button
+                  type="button"
+                  className="spoiler-select__option"
+                  data-active={active}
+                  onClick={() => {
+                    setMaxBook(n);
+                    setOpen(false);
+                  }}
+                >
+                  <span className="spoiler-select__option-num">
+                    {formatBookLabel(n)}
+                  </span>
+                  <span className="spoiler-select__option-title">
+                    {BOOK_TITLES[n]}
+                  </span>
+                  {active ? (
+                    <span className="spoiler-select__check" aria-hidden>
+                      ✓
+                    </span>
+                  ) : (
+                    <span className="spoiler-select__check" aria-hidden />
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </motion.ul>
+      </AnimatePresence>,
+      document.body,
+    );
+
   return (
     <div
       className={`spoiler-select ${open ? "is-open" : ""} ${className}`}
       ref={rootRef}
     >
       <button
+        ref={triggerRef}
         type="button"
         className="spoiler-select__trigger"
         aria-haspopup="listbox"
@@ -123,6 +216,9 @@ export function SpoilerSelect({ className = "" }: { className?: string }) {
           <span className="spoiler-select__value">
             <span className="spoiler-select__book">
               {formatBookLabel(maxBook)}
+            </span>
+            <span className="spoiler-select__sep" aria-hidden>
+              ·
             </span>
             <span className="spoiler-select__title">{currentTitle}</span>
           </span>
@@ -139,50 +235,7 @@ export function SpoilerSelect({ className = "" }: { className?: string }) {
           </svg>
         </span>
       </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.ul
-            className="spoiler-select__menu"
-            role="listbox"
-            aria-label="Highest book you have read"
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.98 }}
-            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <li className="spoiler-select__hint">Reveal through</li>
-            {BOOK_ORDER.map((n) => {
-              const active = n === maxBook;
-              return (
-                <li key={n} role="option" aria-selected={active}>
-                  <button
-                    type="button"
-                    className="spoiler-select__option"
-                    data-active={active}
-                    onClick={() => {
-                      setMaxBook(n);
-                      setOpen(false);
-                    }}
-                  >
-                    <span className="spoiler-select__option-num">
-                      {formatBookLabel(n)}
-                    </span>
-                    <span className="spoiler-select__option-title">
-                      {BOOK_TITLES[n]}
-                    </span>
-                    {active && (
-                      <span className="spoiler-select__check" aria-hidden>
-                        ✓
-                      </span>
-                    )}
-                  </button>
-                </li>
-              );
-            })}
-          </motion.ul>
-        )}
-      </AnimatePresence>
+      {menu}
     </div>
   );
 }

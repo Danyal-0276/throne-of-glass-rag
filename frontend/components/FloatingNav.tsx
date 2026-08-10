@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { SpoilerSelect } from "@/lib/spoiler";
 import SiteMark from "@/components/SiteMark";
 
@@ -18,6 +19,11 @@ const LINKS = [
 
 export default function FloatingNav() {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
   return (
     <div className="float-nav">
@@ -34,7 +40,20 @@ export default function FloatingNav() {
           <SiteMark size={28} />
         </Link>
 
-        <nav className="float-nav__links" aria-label="Primary">
+        <button
+          type="button"
+          className="float-nav__menu-btn"
+          aria-expanded={menuOpen}
+          aria-label="Open navigation"
+          onClick={() => setMenuOpen((v) => !v)}
+        >
+          Menu
+        </button>
+
+        <nav
+          className={`float-nav__links ${menuOpen ? "is-open" : ""}`}
+          aria-label="Primary"
+        >
           {LINKS.map((link) => {
             const active = link.match(pathname);
             return (
@@ -43,6 +62,7 @@ export default function FloatingNav() {
                 href={link.href}
                 className="float-nav__link"
                 data-active={active}
+                onClick={() => setMenuOpen(false)}
               >
                 {link.label}
               </Link>
