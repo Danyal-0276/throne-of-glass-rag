@@ -1,109 +1,137 @@
-# Throne of Glass Archive (Monorepo)
+# Throne of Glass Archive
 
-Unofficial fan archive + **dense RAG** chatbot for the *Throne of Glass* series.
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-backend-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-14%2B-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-4169E1?logo=postgresql&logoColor=white)](https://github.com/pgvector/pgvector)
+[![RAG](https://img.shields.io/badge/RAG-dense%20vector-c45c26)](#architecture)
+[![License](https://img.shields.io/badge/Fan%20project-unofficial-informational)](#disclaimer)
 
+> Unofficial immersive fan archive for Sarah J. Maas’s *Throne of Glass*, with a from-scratch **dense RAG** chatbot (“Ask the Archive”).
+
+**Not affiliated with Sarah J. Maas, Bloomsbury, or any rights holders.**
+
+---
+
+## Highlights
+
+| Area | What you get |
+|------|----------------|
+| **Site** | Home, World, Characters, Timeline, Archive chat, About — ember/ice fantasy UI |
+| **Spoilers** | “Read up to” gate for books **0.5–7** (Assassin’s Blade = **0.5**) |
+| **Chat** | Streaming answers, threads, starter chips, torn-page **source cards** |
+| **RAG** | Sentence-aware chunking → **BGE** embeddings → **Postgres/pgvector** → **Groq** |
+| **Extras** | Character alias expansion (Aelin/Celaena/Fireheart, etc.) |
+
+## Tech stack
+
+**Backend:** Python · FastAPI · sentence-transformers (`BAAI/bge-base-en-v1.5`) · pgvector · Groq · pypdf  
+
+**Frontend:** Next.js (App Router) · TypeScript · Tailwind · GSAP · React Three Fiber  
+
+**No LangChain / LangGraph** in v1 — the pipeline is explicit for learning.
+
+## Repository layout
+
+```text
+throne-of-glass-rag/
+├── backend/          # FastAPI API + ingest + RAG
+│   ├── app/
+│   ├── data/         # your PDFs (gitignored)
+│   ├── scripts/      # ingest, init_db, pgvector helpers
+│   └── .env.example
+├── frontend/         # Next.js immersive UI
+└── README.md
 ```
-rag-project/
-├── backend/     FastAPI + Postgres/pgvector + ingest
-├── frontend/    Next.js immersive site + Ask the Archive chat
-└── data/        Optional mirror of PDFs (gitignored)
+
+Book PDFs and `.env` are **never** committed.
+
+## Book numbering (filenames + spoilers)
+
+| # | Book |
+|---|------|
+| **0.5** | The Assassin’s Blade (prequel novellas) |
+| **01** | Throne of Glass |
+| **02** | Crown of Midnight |
+| **03** | Heir of Fire |
+| **04** | Queen of Shadows |
+| **05** | Empire of Storms |
+| **06** | Tower of Dawn |
+| **07** | Kingdom of Ash |
+
+Example filename: `0.5 - The Assassin's Blade - Sarah J. Maas.pdf`
+
+## Architecture
+
+```text
+PDFs → chunk → embed (BGE) → Postgres/pgvector
+                                      ↑
+Browser → Next.js → FastAPI /ask[/stream] → retrieve + alias expand → Groq → answer + sources
 ```
 
-PDFs live in `backend/data/` (gitignored). Never commit books or `.env`.
+**v1:** dense RAG only. **Later:** Hybrid → light CRAG → optional Graph / Agentic / Multimodal.
 
-## Features
+## Quick start
 
-- Immersive pages: Home, World, Characters, Timeline, Archive, About
-- Spoiler gate (“I’ve read up to Book N”, books **01–08**)
-- Ask the Archive: streaming chat, threads, source cards, alias expansion
-- Dense RAG: BGE embeddings → pgvector → Groq
+### Prerequisites
 
-Publication / chronological labels used for filenames and spoilers:
-
-- **0.5** The Assassin’s Blade (prequel novellas — before Throne of Glass)
-- **01** Throne of Glass  
-- **02** Crown of Midnight  
-- **03** Heir of Fire  
-- **04** Queen of Shadows  
-- **05** Empire of Storms  
-- **06** Tower of Dawn  
-- **07** Kingdom of Ash  
-
-Spoiler filter and `max_book` accept `0.5` through `7`.
-
-## Prerequisites
-
-- Python 3.11+ (3.14 works with this stack)
+- Python 3.11+ (3.14 OK with this stack)
 - Node.js 20+
-- PostgreSQL 18+ with **pgvector** extension
+- PostgreSQL 18+ with **[pgvector](https://github.com/pgvector/pgvector)**
 
-### Enable pgvector (Windows)
-
-1. Install [pgvector](https://github.com/pgvector/pgvector) for your Postgres major version (or use Stack Builder if available).
-2. Create DB and schema:
+### 1. Database
 
 ```powershell
-cd backend
-# Set your postgres password for this session:
+# After pgvector is installed on the server:
 $env:PGPASSWORD = "YOUR_PASSWORD"
-& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -f scripts\init_db.sql
+& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -f backend\scripts\init_db.sql
+# or, if tog_rag already exists:
+& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d tog_rag -f backend\scripts\init_schema.sql
 ```
 
-If `CREATE DATABASE` errors because `tog_rag` already exists, connect and run the extension/table statements only:
+Windows tip: see `backend/scripts/install_pgvector_windows.ps1` (run as Administrator).
 
-```powershell
-& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d tog_rag -c "CREATE EXTENSION IF NOT EXISTS vector;"
-& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d tog_rag -f scripts\init_schema.sql
-```
-
-## Backend setup
+### 2. Backend
 
 ```powershell
 cd backend
 python -m venv .venv
-.\.venv\Scripts\activate
+.\.venv\Scripts\activate          # Windows
 pip install -r requirements.txt
 copy .env.example .env
-# Edit .env: GROQ_API_KEY, DATABASE_URL password, INGEST_TOKEN
-```
+# Set GROQ_API_KEY + DATABASE_URL in .env
 
-Put renamed PDFs in `backend/data/` (already named `01 - …` through `08 - …`).
-
-Ingest (re-run whenever PDFs/model/chunking change):
-
-```powershell
-cd backend
-.\.venv\Scripts\activate
+# Place PDFs in backend/data/ then:
 python scripts\ingest.py
-# or: curl -X POST http://localhost:8000/ingest -H "Content-Type: application/json" -d "{\"token\":\"dev-ingest-token\",\"clear\":true}"
-```
 
-Run API:
-
-```powershell
-cd backend
-.\.venv\Scripts\activate
 uvicorn app.main:app --reload --port 8000
 ```
 
-Docs: http://localhost:8000/docs
+API docs: http://localhost:8000/docs
 
-## Frontend setup
+### 3. Frontend
 
 ```powershell
 cd frontend
 npm install
-# .env.local already has NEXT_PUBLIC_API_URL=http://localhost:8000
+# .env.local → NEXT_PUBLIC_API_URL=http://localhost:8000
 npm run dev
 ```
 
-Open http://localhost:3000 — Archive at `/archive`.
+Open http://localhost:3000 — chat at `/archive`.
 
-## Copyright
+## Topics / tags
 
-Unofficial fan project, not affiliated with Sarah J. Maas or Bloomsbury.  
-Do not host book PDFs or long verbatim excerpts publicly. Site copy and generated art are original for this fan archive.
+`rag` · `retrieval-augmented-generation` · `fastapi` · `nextjs` · `postgresql` · `pgvector` · `sentence-transformers` · `groq` · `llm` · `nlp` · `typescript` · `python` · `throne-of-glass` · `fan-project`
 
-## Future RAG upgrades
+## Disclaimer
 
-v1 is dense RAG only. Planned later: Hybrid → light CRAG → optional Graph / Agentic / Multimodal.
+Unofficial educational / portfolio fan project.  
+Do **not** host copyrighted book PDFs or long verbatim excerpts on a public site.  
+Supply your own legally obtained copies locally for ingest only.  
+Character/location blurbs and generated art on the site are original fan-made content.
+
+## License
+
+Code in this repository is available for learning and portfolio use.  
+Book content remains © the respective authors and publishers.
